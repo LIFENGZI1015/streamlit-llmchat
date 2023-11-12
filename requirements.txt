@@ -1,3 +1,8 @@
 openai 
 streamlit 
 streamlit-chat
+python-dotenv
+pytesseract 
+pillow
+pandas
+python-docx

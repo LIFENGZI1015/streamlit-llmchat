@@ -1,18 +1,22 @@
-import openai
+from openai import OpenAI
 import streamlit as st
 from streamlit_chat import message
 import os
-
-openai_org = os.environ.get('OPENAI_ORG_ID')
-openai_key = os.environ.get('OPENAI_API_KEY')
+from dotenv import load_dotenv
+load_dotenv()
 
 # Setting page title and header
 st.set_page_config(page_title="LLMCHAT", page_icon=":robot_face:")
-st.markdown("<h1 style='text-align: center;'>LLMCHAT - a LLM powered chatbot 😬</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>LlmChat - a helpful chatbot 😬</h1>", unsafe_allow_html=True)
 
 # Set org ID and API key
-openai.organization = openai_org
-openai.api_key = openai_key
+# openai.organization = openai_org
+# openai.api_key = openai_key
+# openai_org = os.environ.get('OPENAI_ORG_ID')
+# openai_key = os.environ.get('OPENAI_API_KEY')
+client = OpenAI(
+    api_key=os.environ.get('OPENAI_API_KEY'),
+)
 
 # Initialise session state variables
 if 'generated' not in st.session_state:
@@ -59,15 +63,19 @@ if clear_button:
     st.session_state['total_tokens'] = []
     counter_placeholder.write(f"Total cost of this conversation: ${st.session_state['total_cost']:.5f}")
 
-
 # Generate a response
 def generate_response(prompt):
     st.session_state['messages'].append({"role": "user", "content": prompt})
 
-    completion = openai.ChatCompletion.create(
+    # completion = openai.ChatCompletion.create(
+    #     model=model,
+    #     messages=st.session_state['messages']
+    # )
+    completion = client.chat.completions.create(
         model=model,
         messages=st.session_state['messages']
     )
+
     response = completion.choices[0].message.content
     st.session_state['messages'].append({"role": "assistant", "content": response})
 
@@ -76,7 +84,6 @@ def generate_response(prompt):
     prompt_tokens = completion.usage.prompt_tokens
     completion_tokens = completion.usage.completion_tokens
     return response, total_tokens, prompt_tokens, completion_tokens
-
 
 # container for chat history
 response_container = st.container()
